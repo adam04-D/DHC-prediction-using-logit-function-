@@ -1,0 +1,258 @@
+
+==============================================================================
+1. CHARGEMENT ET PRÉPARATION DES DONNÉES
+==============================================================================
+Dimensions brutes : (303, 14)
+Valeurs manquantes par variable :
+age         0
+sex         0
+cp          0
+trestbps    0
+chol        0
+fbs         0
+restecg     0
+thalach     0
+exang       0
+oldpeak     0
+slope       0
+ca          4
+thal        2
+num         0
+dtype: int64
+
+Dimensions après suppression des NA : (297, 14)
+
+Aperçu des données :
+    age sex              cp  trestbps  ...        slope   ca        thal  chd
+0  63.0   M      angine_typ     145.0  ...  descendante  0.0        fixe    0
+1  67.0   M  asymptomatique     160.0  ...        plate  3.0      normal    1
+2  67.0   M  asymptomatique     120.0  ...        plate  2.0  reversible    1
+3  37.0   M   non_angineuse     130.0  ...  descendante  0.0      normal    0
+4  41.0   F     angine_atyp     130.0  ...   ascendante  0.0      normal    0
+
+[5 rows x 14 columns]
+
+Descriptif des variables quantitatives :
+          age  trestbps    chol  thalach  oldpeak      ca     chd
+count  297.00    297.00  297.00   297.00   297.00  297.00  297.00
+mean    54.54    131.69  247.35   149.60     1.06    0.68    0.46
+std      9.05     17.76   52.00    22.94     1.17    0.94    0.50
+min     29.00     94.00  126.00    71.00     0.00    0.00    0.00
+25%     48.00    120.00  211.00   133.00     0.00    0.00    0.00
+50%     56.00    130.00  243.00   153.00     0.80    0.00    0.00
+75%     61.00    140.00  276.00   166.00     1.60    1.00    1.00
+max     77.00    200.00  564.00   202.00     6.20    3.00    1.00
+
+==============================================================================
+2. ANALYSE DESCRIPTIVE DE LA VARIABLE RÉPONSE
+==============================================================================
+chd
+0    160
+1    137
+Name: count, dtype: int64
+
+Proportion de malades : 0.461
+Proportion de sains   : 0.539
+→ La variable réponse n'est pas parfaitement équilibrée mais reste exploitable.
+→ Un échantillonnage stratifié est utilisé pour préserver la répartition.
+
+==============================================================================
+3. ÉCHANTILLONNAGE STRATIFIÉ 80/20
+==============================================================================
+Apprentissage : (237, 18), prop CHD = 0.460
+Validation    : (60, 18), prop CHD = 0.467
+
+==============================================================================
+4. AJUSTEMENT DU GLM BINOMIAL (LIEN LOGIT) – MODÈLE COMPLET
+==============================================================================
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  237
+Model:                            GLM   Df Residuals:                      218
+Model Family:                Binomial   Df Model:                           18
+Link Function:                  logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -80.141
+Date:                Wed, 22 Apr 2026   Deviance:                       160.28
+Time:                        20:56:39   Pearson chi2:                     267.
+No. Iterations:                     6   Pseudo R-squ. (CS):             0.5052
+Covariance Type:            nonrobust                                         
+===========================================================================================
+                              coef    std err          z      P>|z|      [0.025      0.975]
+-------------------------------------------------------------------------------------------
+const                      -1.9331      3.004     -0.644      0.520      -7.821       3.954
+age                        -0.0119      0.249     -0.048      0.962      -0.499       0.475
+trestbps                    0.4543      0.228      1.989      0.047       0.007       0.902
+chol                        0.2569      0.231      1.111      0.267      -0.196       0.710
+thalach                    -0.2100      0.277     -0.757      0.449      -0.753       0.333
+oldpeak                     0.4767      0.314      1.516      0.129      -0.139       1.093
+ca                          1.0265      0.278      3.690      0.000       0.481       1.572
+sex_M                       1.3072      0.588      2.224      0.026       0.155       2.459
+cp_angine_typ              -0.9459      0.840     -1.127      0.260      -2.591       0.700
+cp_asymptomatique           0.9267      0.623      1.486      0.137      -0.295       2.149
+cp_non_angineuse           -1.1165      0.699     -1.597      0.110      -2.487       0.254
+fbs_oui                    -0.5413      0.630     -0.859      0.391      -1.777       0.694
+restecg_hypertrophie_VG    -0.0259      2.822     -0.009      0.993      -5.556       5.505
+restecg_normal             -0.6200      2.818     -0.220      0.826      -6.143       4.903
+exang_oui                   0.5255      0.473      1.110      0.267      -0.402       1.453
+slope_descendante           1.1736      0.999      1.175      0.240      -0.784       3.131
+slope_plate                 1.1296      0.520      2.171      0.030       0.110       2.150
+thal_normal                -0.1153      0.823     -0.140      0.889      -1.728       1.498
+thal_reversible             1.5139      0.808      1.874      0.061      -0.069       3.097
+===========================================================================================
+
+==============================================================================
+5. SÉLECTION DE VARIABLES PAR BACKWARD AIC
+==============================================================================
+  - retire restecg_hypertrophie_VG    AIC=196.282
+  - retire age                        AIC=194.284
+  - retire thal_normal                AIC=192.302
+  - retire thalach                    AIC=191.002
+  - retire fbs_oui                    AIC=189.816
+  - retire chol                       AIC=188.833
+  - retire slope_descendante          AIC=187.902
+  - retire exang_oui                  AIC=187.535
+  - retire cp_angine_typ              AIC=187.145
+  - retire cp_non_angineuse           AIC=186.195
+
+Variables retenues (8) : ['trestbps', 'oldpeak', 'ca', 'sex_M', 'cp_asymptomatique', 'restecg_normal', 'slope_plate', 'thal_reversible']
+
+-- Modèle réduit --
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  237
+Model:                            GLM   Df Residuals:                      228
+Model Family:                Binomial   Df Model:                            8
+Link Function:                  logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -84.097
+Date:                Wed, 22 Apr 2026   Deviance:                       168.19
+Time:                        20:56:39   Pearson chi2:                     249.
+No. Iterations:                     6   Pseudo R-squ. (CS):             0.4884
+Covariance Type:            nonrobust                                         
+=====================================================================================
+                        coef    std err          z      P>|z|      [0.025      0.975]
+-------------------------------------------------------------------------------------
+const                -2.3709      0.592     -4.003      0.000      -3.532      -1.210
+trestbps              0.3749      0.203      1.845      0.065      -0.023       0.773
+oldpeak               0.6459      0.263      2.454      0.014       0.130       1.162
+ca                    0.8984      0.240      3.747      0.000       0.429       1.368
+sex_M                 0.8776      0.479      1.832      0.067      -0.061       1.817
+cp_asymptomatique     1.9151      0.400      4.787      0.000       1.131       2.699
+restecg_normal       -0.7581      0.413     -1.834      0.067      -1.568       0.052
+slope_plate           0.9217      0.437      2.107      0.035       0.064       1.779
+thal_reversible       1.7150      0.434      3.949      0.000       0.864       2.566
+=====================================================================================
+
+-- Modèle simple (age uniquement) --
+                 Generalized Linear Model Regression Results                  
+==============================================================================
+Dep. Variable:                      y   No. Observations:                  237
+Model:                            GLM   Df Residuals:                      235
+Model Family:                Binomial   Df Model:                            1
+Link Function:                  logit   Scale:                          1.0000
+Method:                          IRLS   Log-Likelihood:                -158.74
+Date:                Wed, 22 Apr 2026   Deviance:                       317.48
+Time:                        20:56:39   Pearson chi2:                     237.
+No. Iterations:                     4   Pseudo R-squ. (CS):            0.03949
+Covariance Type:            nonrobust                                         
+==============================================================================
+                 coef    std err          z      P>|z|      [0.025      0.975]
+------------------------------------------------------------------------------
+const         -0.1683      0.133     -1.264      0.206      -0.429       0.093
+age            0.4133      0.137      3.015      0.003       0.145       0.682
+==============================================================================
+
+==============================================================================
+6. TEST DU RAPPORT DE VRAISEMBLANCE (modèles emboîtés)
+==============================================================================
+H0: M_age  vs  H1: M_reduit
+  ΔD = D(M_age) - D(M_reduit) = 149.2828
+  ddl = 7,  p-value = 0
+  → H0 rejetée au seuil 5%
+
+H0: M_reduit  vs  H1: M_complet
+  ΔD = D(M_reduit) - D(M_complet) = 7.9131
+  ddl = 10,  p-value = 0.63732
+  → H0 conservée au seuil 5%
+
+
+==============================================================================
+7. ADÉQUATION DU MODÈLE RETENU (M_reduit)
+==============================================================================
+--- M_age ---
+  n = 237, p (sans intercept) = 1, ddl résiduels = 235
+  Déviance D       = 317.4775    (ratio D/ddl = 1.351)
+  χ² Pearson       = 236.9542  (ratio = 1.008)
+  Déviance nulle D0 = 327.0269
+  Pseudo-R² (McFadden via déviance) = 0.0292
+  AIC = 321.478   BIC = 328.414
+  Test de déviance : p-value = 0.0002673 (inadéquat)
+--- M_reduit ---
+  n = 237, p (sans intercept) = 8, ddl résiduels = 228
+  Déviance D       = 168.1947    (ratio D/ddl = 0.738)
+  χ² Pearson       = 248.7054  (ratio = 1.091)
+  Déviance nulle D0 = 327.0269
+  Pseudo-R² (McFadden via déviance) = 0.4857
+  AIC = 186.195   BIC = 217.407
+  Test de déviance : p-value = 0.9989 (modèle adéquat)
+--- M_complet ---
+  n = 237, p (sans intercept) = 18, ddl résiduels = 218
+  Déviance D       = 160.2816    (ratio D/ddl = 0.735)
+  χ² Pearson       = 267.0622  (ratio = 1.225)
+  Déviance nulle D0 = 327.0269
+  Pseudo-R² (McFadden via déviance) = 0.5099
+  AIC = 198.282   BIC = 264.175
+  Test de déviance : p-value = 0.9987 (modèle adéquat)
+
+Hosmer-Lemeshow (modèle réduit, g=10) : C² = 6.3668, ddl = 8, p = 0.6062
+→ p > 0.05 indique un bon ajustement.
+
+==============================================================================
+8. ANALYSE DES RÉSIDUS (modèle retenu)
+==============================================================================
+|résidus de Pearson|  > 2 : 13 obs
+|résidus de déviance| > 2 : 6 obs
+Seuil de levier h_ii > 2(p+1)/n = 0.0759 : 24 obs influentes
+Distance de Cook max = 0.0729  (alerte si > 1)
+
+==============================================================================
+9. ÉVALUATION SUR L'ÉCHANTILLON DE VALIDATION (n=20%)
+==============================================================================
+
+--- M_complet (seuil=0.5) ---
+Matrice de confusion :
+[[28  4]
+ [ 6 22]]
+  Accuracy=0.833  Précision=0.846  Rappel=0.786  F1=0.815  AUC=0.951
+
+--- M_reduit (seuil=0.5) ---
+Matrice de confusion :
+[[27  5]
+ [ 6 22]]
+  Accuracy=0.817  Précision=0.815  Rappel=0.786  F1=0.800  AUC=0.942
+
+--- M_age (seuil=0.5) ---
+Matrice de confusion :
+[[27  5]
+ [17 11]]
+  Accuracy=0.633  Précision=0.688  Rappel=0.393  F1=0.500  AUC=0.705
+
+==============================================================================
+10. INTERPRÉTATION DU MODÈLE RETENU – ODDS RATIOS
+==============================================================================
+                   Coefficient β  OR = exp(β)  IC95% bas  IC95% haut  p-value
+const                    -2.3709       0.0934     0.0293      0.2982   0.0001
+trestbps                  0.3749       1.4548     0.9770      2.1662   0.0650
+oldpeak                   0.6459       1.9077     1.1389      3.1955   0.0141
+ca                        0.8984       2.4557     1.5350      3.9288   0.0002
+sex_M                     0.8776       2.4051     0.9405      6.1505   0.0670
+cp_asymptomatique         1.9151       6.7879     3.0986     14.8697   0.0000
+restecg_normal           -0.7581       0.4685     0.2084      1.0533   0.0666
+slope_plate               0.9217       2.5136     1.0666      5.9239   0.0351
+thal_reversible           1.7150       5.5568     2.3723     13.0163   0.0001
+
+==============================================================================
+11. COMPARAISON DE FONCTIONS DE LIEN (logit / probit / cloglog)
+==============================================================================
+  logit     Déviance = 168.195   AIC = 186.195
+  probit    Déviance = 169.066   AIC = 187.066
+  cloglog   Déviance = 167.634   AIC = 185.634
